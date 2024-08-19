@@ -1,6 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
@@ -160,93 +158,13 @@ public sealed class CursorTrackingSystem : ModSystem
 			return;
 		}
 
-		int mouseIndex = layers.FindIndex(l => l.Name == "Vanilla: Cursor");
+		// Draw much earlier than the local player's cursor.
+		int mouseIndex = layers.FindIndex(l => l.Name == "Vanilla: Diagnose Net");
 		if (mouseIndex == -1)
 		{
-			Main.NewText("what");
 			return;
 		}
 
-		layers.Insert(mouseIndex + 1, _otherPlayerMouseLayer);
-	}
-}
-
-internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
-{
-	public OtherPlayerMouseLayer() : base($"{nameof(MultiplayerCursors)}: Other Player Cursors", InterfaceScaleType.UI)
-	{
-	}
-
-	protected override bool DrawSelf()
-	{
-		// Adapted from Main::DrawInterface_36_Cursor
-		Main.spriteBatch.End();
-		Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.SamplerStateForCursor, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.UIScaleMatrix);
-
-		(int originalMouseX, int originalMouseY) = (Main.mouseX, Main.mouseY);
-		Color originalCursorColor = Main.cursorColor;
-		Color originalBorderColor = Main.MouseBorderColor;
-		bool originalSmartCursorMouse = Main.SmartCursorWanted_Mouse;
-		bool originalSmartCursorGamePad = Main.SmartCursorWanted_GamePad;
-		bool originalRainbowCursor = Main.LocalPlayer.hasRainbowCursor;
-		try
-		{
-			Rectangle screenArea = new(
-				(int)Main.Camera.ScaledPosition.X - 20,
-				(int)Main.Camera.ScaledPosition.Y - 20,
-				(int)Main.Camera.ScaledSize.X + 40,
-				(int)Main.Camera.ScaledSize.Y + 40
-			);
-			for (int i = 0; i < Main.maxPlayers; i++)
-			{
-				if (i == Main.myPlayer) continue;
-				if (!Main.player[i].active) continue;
-				if (Main.LocalPlayer.InOpposingTeam(Main.player[i])) continue;
-
-				UnstableData unstableData = CursorTrackingSystem.unstableDataByPlayer[i];
-				if (!screenArea.Contains(unstableData.CursorWorldPosition.ToPoint()))
-				{
-					Main.NewText("Doesn't contain mouse");
-					continue;
-				}
-
-				StableData stableData = CursorTrackingSystem.stableDataByPlayer[i];
-
-				Main.mouseX = (int)(unstableData.CursorWorldPosition.X - Main.screenPosition.X);
-				Main.mouseY = (int)(unstableData.CursorWorldPosition.Y - Main.screenPosition.Y);
-				Main.cursorColor = CursorColorFromMouseColor(stableData.CursorMainColor);
-				Main.MouseBorderColor = stableData.CursorBorderColor;
-				Main.SmartCursorWanted_Mouse = unstableData.SmartCursorEnabled;
-
-				if (unstableData.SmartCursorEnabled)
-				{
-					Main.DrawCursor(Main.DrawThickCursor(smart: true), smart: true);
-				}
-				else
-				{
-					Main.DrawCursor(Main.DrawThickCursor());
-				}
-			}
-		}
-		finally
-		{
-			(Main.mouseX, Main.mouseY) = (originalMouseX, originalMouseY);
-			Main.cursorColor = originalCursorColor;
-			Main.MouseBorderColor = originalBorderColor;
-			Main.SmartCursorWanted_Mouse = originalSmartCursorMouse;
-			Main.SmartCursorWanted_GamePad = originalSmartCursorGamePad;
-			Main.LocalPlayer.hasRainbowCursor = originalRainbowCursor;
-		}
-		return base.DrawSelf();
-	}
-
-	private static Color CursorColorFromMouseColor(Color cursorMainColor)
-	{
-		float num = (Main.cursorAlpha * 0.3f) + 0.7f;
-		byte r = (byte)(cursorMainColor.R * Main.cursorAlpha);
-		byte g = (byte)(cursorMainColor.G * Main.cursorAlpha);
-		byte b = (byte)(cursorMainColor.B * Main.cursorAlpha);
-		byte a = (byte)(255f * num);
-		return new Color(r, g, b, a);
+		layers.Insert(mouseIndex, _otherPlayerMouseLayer);
 	}
 }

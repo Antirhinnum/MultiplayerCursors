@@ -1,8 +1,10 @@
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.UI;
 
 namespace MultiplayerCursors;
 
@@ -13,6 +15,7 @@ public sealed class MultiplayerCursors : Mod
 	/// <br/> Index 2: The player the data belongs to.
 	/// </summary>
 	private static readonly StableData[,] _lastSyncedStableDataPerPlayer = new StableData[Main.maxPlayers, Main.maxPlayers];
+	internal static bool transparentItems = false;
 
 	public override void HandlePacket(BinaryReader reader, int whoAmI)
 	{
@@ -102,5 +105,24 @@ public sealed class MultiplayerCursors : Mod
 				break;
 			}
 		}
+	}
+
+	public override void Load()
+	{
+		if (!Main.dedServ)
+		{
+			On_ItemSlot.GetItemLight_refColor_refSingle_int_bool += TransparentifyItems;
+		}
+	}
+
+	private static Color TransparentifyItems(On_ItemSlot.orig_GetItemLight_refColor_refSingle_int_bool orig, ref Color currentColor, ref float scale, int type, bool outInTheWorld)
+	{
+		Color originalReturn = orig(ref currentColor, ref scale, type, outInTheWorld);
+		if (transparentItems)
+		{
+			float alpha = 0.5f;
+			currentColor *= alpha;
+		}
+		return originalReturn;
 	}
 }
