@@ -1,0 +1,8 @@
+displayName = Multiplayer Cursors
+author = Snek
+version = 1.0.0
+hideCode = false
+hideResources = false
+includeSource = true
+buildIgnore = Properties/*, LICENSE, README.md
+homepage = https://github.com/Antirhinnum/MultiplayerCursors
