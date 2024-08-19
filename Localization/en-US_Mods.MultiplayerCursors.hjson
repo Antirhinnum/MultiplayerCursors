@@ -1,1 +1,15 @@
+Configs: {
+	ClientConfig: {
+		DisplayName: Client Config
 
+		Transparency: {
+			Label: Transparency
+			Tooltip: How transparent other players' cursors will be.
+		}
+
+		ShowItemIcons: {
+			Label: Show Item Icons
+			Tooltip: If true, show the items other players are holding.
+		}
+	}
+}

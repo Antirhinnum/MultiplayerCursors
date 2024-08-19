@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.Runtime.CompilerServices;
 using Terraria;
+using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
 using Terraria.UI;
 
 namespace MultiplayerCursors;
@@ -66,7 +68,10 @@ internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
 					Main.DrawCursor(Main.DrawThickCursor());
 				}
 
-				DrawInterface_40_InteractItemIcon(Main.instance);
+				if (ModContent.GetInstance<ClientConfig>().ShowItemIcons)
+				{
+					DrawInterface_40_InteractItemIcon(Main.instance);
+				}
 			}
 		}
 		finally
@@ -91,7 +96,7 @@ internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
 	private static Color CursorColorFromMouseColor(Color cursorMainColor)
 	{
 		float originalAlpha = Main.cursorAlpha;
-		Main.cursorAlpha /= 4;
+		Main.cursorAlpha *= ModContent.GetInstance<ClientConfig>().Transparency;
 		float num = (Main.cursorAlpha * 0.3f) + 0.7f;
 		byte r = (byte)(cursorMainColor.R * Main.cursorAlpha);
 		byte g = (byte)(cursorMainColor.G * Main.cursorAlpha);

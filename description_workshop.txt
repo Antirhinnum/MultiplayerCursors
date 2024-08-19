@@ -1,0 +1,3 @@
+Shows other players' cursors in multiplayer.
+
+[url=https://github.com/Antirhinnum/MultiplayerCursors]Source on GitHub[/url]

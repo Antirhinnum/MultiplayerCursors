@@ -120,7 +120,7 @@ public sealed class MultiplayerCursors : Mod
 		Color originalReturn = orig(ref currentColor, ref scale, type, outInTheWorld);
 		if (transparentItems)
 		{
-			float alpha = 0.5f;
+			float alpha = ModContent.GetInstance<ClientConfig>().Transparency;
 			currentColor *= alpha;
 		}
 		return originalReturn;
