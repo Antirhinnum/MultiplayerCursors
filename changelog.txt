@@ -1,0 +1,5 @@
+Multiplayer Cursors Version v{ModVersion}
+
+[list][*]Fixed UI scale not working.
+[*]Fixed cursors disappearing if their tips went off the left side of the screen.
+[/list]

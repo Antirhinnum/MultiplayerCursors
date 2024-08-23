@@ -18,25 +18,27 @@ internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
 	{
 		// Adapted from Main::DrawInterface_36_Cursor
 		Main.spriteBatch.End();
-		Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.SamplerStateForCursor, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.UIScaleMatrix);
+		Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.SamplerStateForCursor, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.ZoomMatrix);
 
-		MultiplayerCursors.transparentItems = true;
 		int originalMyPlayer = Main.myPlayer;
 		(int originalMouseX, int originalMouseY) = (Main.mouseX, Main.mouseY);
+		float originalCursorScale = Main.cursorScale;
 		Color originalCursorColor = Main.cursorColor;
 		Color originalBorderColor = Main.MouseBorderColor;
 		bool originalSmartCursorMouse = Main.SmartCursorWanted_Mouse;
 		bool originalSmartCursorGamePad = Main.SmartCursorWanted_GamePad;
-		bool originalRainbowCursor = Main.LocalPlayer.hasRainbowCursor;
 		bool originalHoveringOverAnNPC = Main.HoveringOverAnNPC;
-		bool originalCursorItemIconEnabled = Main.LocalPlayer.cursorItemIconEnabled;
+
+		MultiplayerCursors.transparentItems = true;
+		Main.cursorScale = originalCursorScale * Main.UIScale;
 		try
 		{
+			// The cursor position is where the tip draws, so we need to offset so that cursors whose tails are onscreen still draw
 			Rectangle screenArea = new(
-				(int)Main.Camera.ScaledPosition.X,
-				(int)Main.Camera.ScaledPosition.Y,
-				(int)Main.Camera.ScaledSize.X,
-				(int)Main.Camera.ScaledSize.Y
+				(int)Main.Camera.ScaledPosition.X - 200,
+				(int)Main.Camera.ScaledPosition.Y - 200,
+				(int)(Main.Camera.ScaledSize.X * Main.UIScale) + 400,
+				(int)(Main.Camera.ScaledSize.Y * Main.UIScale) + 400
 			);
 			for (int i = 0; i < Main.maxPlayers; i++)
 			{
@@ -79,13 +81,12 @@ internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
 			MultiplayerCursors.transparentItems = false;
 			Main.myPlayer = originalMyPlayer;
 			(Main.mouseX, Main.mouseY) = (originalMouseX, originalMouseY);
+			Main.cursorScale = originalCursorScale;
 			Main.cursorColor = originalCursorColor;
 			Main.MouseBorderColor = originalBorderColor;
 			Main.SmartCursorWanted_Mouse = originalSmartCursorMouse;
 			Main.SmartCursorWanted_GamePad = originalSmartCursorGamePad;
-			Main.LocalPlayer.hasRainbowCursor = originalRainbowCursor;
 			Main.HoveringOverAnNPC = originalHoveringOverAnNPC;
-			Main.LocalPlayer.cursorItemIconEnabled = originalCursorItemIconEnabled;
 		}
 		return base.DrawSelf();
 	}
