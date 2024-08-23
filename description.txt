@@ -1,1 +1,2 @@
 Shows other players' cursors in multiplayer.
+Check the config for more options.
