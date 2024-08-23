@@ -11,5 +11,27 @@ Configs: {
 			Label: Show Item Icons
 			Tooltip: If true, show the items other players are holding.
 		}
+
+		SyncWaitFrames: {
+			Label: Client Sync Wait Frames
+			Tooltip:
+				'''
+				The number of frames the client waits to send cursor data to the server.
+				Higher values reduce network load, but make cursor movement less smooth.
+				'''
+		}
+	}
+
+	ServerConfig: {
+		DisplayName: Server Config
+
+		SyncWaitFrames: {
+			Label: Server Sync Wait Frames
+			Tooltip:
+				'''
+				The number of frames the server waits to send cursor data to clients.
+				Higher values reduce network load, but make cursor movement less smooth.
+				'''
+		}
 	}
 }

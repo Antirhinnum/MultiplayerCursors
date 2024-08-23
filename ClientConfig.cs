@@ -13,4 +13,8 @@ internal sealed class ClientConfig : ModConfig
 
 	[DefaultValue(true)]
 	public bool ShowItemIcons;
+
+	[DefaultValue(1)]
+	[Range(0, 60)]
+	public int SyncWaitFrames;
 }

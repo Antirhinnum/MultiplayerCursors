@@ -2,5 +2,7 @@ Multiplayer Cursors Version v{ModVersion}
 
 [list][*]Fixed UI scale not working.
 [*]Fixed cursors disappearing if their tips went off the left side of the screen.
+[*]Reduced network load if no data is being changed.
+[*]Added config options to further reduce network load.
 [*]Added a small icon to the mod.
 [/list]

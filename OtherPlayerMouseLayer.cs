@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Runtime.CompilerServices;
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 using Terraria.UI;
 
 namespace MultiplayerCursors;

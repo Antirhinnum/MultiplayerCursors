@@ -9,7 +9,14 @@ namespace MultiplayerCursors;
 
 public sealed class CursorTrackingSystem : ModSystem
 {
+	/// <summary>
+	/// Index 1: The player the data was synced to.
+	/// <br/> Index 2: The player the data belongs to.
+	/// </summary>
+	private static readonly UnstableData[,] _lastSyncedUnstableDataPerPlayer = new UnstableData[Main.maxPlayers, Main.maxPlayers];
 	private static readonly OtherPlayerMouseLayer _otherPlayerMouseLayer = new();
+	private static int _clientSyncWaitFrames;
+	private static int _serverSyncWaitFrames;
 	internal static readonly StableData[] stableDataByPlayer = new StableData[Main.maxPlayers];
 	internal static readonly UnstableData[] unstableDataByPlayer = new UnstableData[Main.maxPlayers];
 
@@ -20,10 +27,17 @@ public sealed class CursorTrackingSystem : ModSystem
 			return;
 		}
 
+		_clientSyncWaitFrames = 0;
+		_serverSyncWaitFrames = 0;
 		for (int i = 0; i < Main.maxPlayers; i++)
 		{
 			stableDataByPlayer[i] = default;
 			unstableDataByPlayer[i] = default;
+
+			for (int j = 0; i < Main.maxPlayers; i++)
+			{
+				_lastSyncedUnstableDataPerPlayer[i, j] = default;
+			}
 		}
 	}
 
@@ -44,6 +58,12 @@ public sealed class CursorTrackingSystem : ModSystem
 	/// </summary>
 	private void SyncDataFromClient()
 	{
+		if (_clientSyncWaitFrames++ < ModContent.GetInstance<ClientConfig>().SyncWaitFrames)
+		{
+			return;
+		}
+
+		_clientSyncWaitFrames = 0;
 		StableData newStableData = StableData.GenerateFromClient();
 		if (stableDataByPlayer[Main.myPlayer] != newStableData)
 		{
@@ -72,6 +92,12 @@ public sealed class CursorTrackingSystem : ModSystem
 	/// </summary>
 	private void SyncDataFromServer()
 	{
+		if (_serverSyncWaitFrames++ < ModContent.GetInstance<ServerConfig>().SyncWaitFrames)
+		{
+			return;
+		}
+
+		_serverSyncWaitFrames = 0;
 		List<int> playerIndiciesToSync = new(Main.maxPlayers);
 
 		// Sync other players' cursors to player i
@@ -105,6 +131,12 @@ public sealed class CursorTrackingSystem : ModSystem
 					continue;
 				}
 
+				// Don't sync data that hasn't changed.
+				if (unstableDataByPlayer[playerToGetDataFrom] == _lastSyncedUnstableDataPerPlayer[playerToSyncTo, playerToGetDataFrom])
+				{
+					continue;
+				}
+
 				// Don't sync info from players that this one can't see.
 				if (!CanPlayer1SeePlayer2Cursor(playerToSyncTo, playerToGetDataFrom))
 				{
@@ -127,6 +159,8 @@ public sealed class CursorTrackingSystem : ModSystem
 			{
 				packet.Write((byte)playerIndex);
 				UnstableData.WriteToNet(packet, unstableDataByPlayer[playerIndex]);
+
+				_lastSyncedUnstableDataPerPlayer[playerToSyncTo, playerIndex] = unstableDataByPlayer[playerIndex];
 			}
 			packet.Send(toClient: playerToSyncTo);
 		}
