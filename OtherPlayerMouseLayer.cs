@@ -16,6 +16,7 @@ internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
 	protected override bool DrawSelf()
 	{
 		// Adapted from Main::DrawInterface_36_Cursor
+		// Using GameViewMatrix.ZoomMatrix here because cursors are drawn based on their world positions, not the local player's screen position.
 		Main.spriteBatch.End();
 		Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.SamplerStateForCursor, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.ZoomMatrix);
 
@@ -29,7 +30,9 @@ internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
 		bool originalHoveringOverAnNPC = Main.HoveringOverAnNPC;
 
 		MultiplayerCursors.transparentItems = true;
-		Main.cursorScale = originalCursorScale * Main.UIScale;
+		// Multiply by UIScale to properly scale, divide by game scale since using Main.GameViewMatrix autoscales by it
+		// Without the division, cursors mysteriously scale up if you zoom in, despite being UI elements.
+		Main.cursorScale = originalCursorScale * Main.UIScale / Main.GameViewMatrix.Zoom.X;
 		try
 		{
 			// The cursor position is where the tip draws, so we need to offset so that cursors whose tails are onscreen still draw
