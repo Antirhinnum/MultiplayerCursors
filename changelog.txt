@@ -1,4 +1,4 @@
 Multiplayer Cursors Version v{ModVersion}
 
-[list][*]Fixed other players' cursors scaling with game zoom.
+[list][*]Fixed cursors sometimes not updating if a player teleported away.
 [/list]

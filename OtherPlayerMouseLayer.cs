@@ -37,11 +37,12 @@ internal sealed class OtherPlayerMouseLayer : GameInterfaceLayer
 		{
 			// The cursor position is where the tip draws, so we need to offset so that cursors whose tails are onscreen still draw
 			Rectangle screenArea = new(
-				(int)Main.Camera.ScaledPosition.X - 200,
-				(int)Main.Camera.ScaledPosition.Y - 200,
-				(int)(Main.Camera.ScaledSize.X * Main.UIScale) + 400,
-				(int)(Main.Camera.ScaledSize.Y * Main.UIScale) + 400
+				(int)Main.Camera.ScaledPosition.X,
+				(int)Main.Camera.ScaledPosition.Y,
+				(int)(Main.Camera.ScaledSize.X * Main.UIScale),
+				(int)(Main.Camera.ScaledSize.Y * Main.UIScale)
 			);
+			screenArea.Inflate(CursorTrackingSystem.CursorPadding, CursorTrackingSystem.CursorPadding);
 			for (int i = 0; i < Main.maxPlayers; i++)
 			{
 				if (i == originalMyPlayer) continue;

@@ -14,11 +14,13 @@ public sealed class CursorTrackingSystem : ModSystem
 	/// <br/> Index 2: The player the data belongs to.
 	/// </summary>
 	private static readonly UnstableData[,] _lastSyncedUnstableDataPerPlayer = new UnstableData[Main.maxPlayers, Main.maxPlayers];
+	private static readonly bool[,] _couldSeeCursorLastFrame = new bool[Main.maxPlayers, Main.maxPlayers];
 	private static readonly OtherPlayerMouseLayer _otherPlayerMouseLayer = new();
 	private static int _clientSyncWaitFrames;
 	private static int _serverSyncWaitFrames;
 	internal static readonly StableData[] stableDataByPlayer = new StableData[Main.maxPlayers];
 	internal static readonly UnstableData[] unstableDataByPlayer = new UnstableData[Main.maxPlayers];
+	internal const int CursorPadding = 200;
 
 	public override void ClearWorld()
 	{
@@ -37,6 +39,7 @@ public sealed class CursorTrackingSystem : ModSystem
 			for (int j = 0; i < Main.maxPlayers; i++)
 			{
 				_lastSyncedUnstableDataPerPlayer[i, j] = default;
+				_couldSeeCursorLastFrame[i, j] = false;
 			}
 		}
 	}
@@ -114,6 +117,7 @@ public sealed class CursorTrackingSystem : ModSystem
 			{
 				if (!Main.player[playerToGetDataFrom].active)
 				{
+					_couldSeeCursorLastFrame[playerToSyncTo, playerToGetDataFrom] = false;
 					continue;
 				}
 
@@ -128,6 +132,7 @@ public sealed class CursorTrackingSystem : ModSystem
 				// Don't sync info to opponents, since they can't see it anyways.
 				if (Main.player[playerToSyncTo].InOpposingTeam(Main.player[playerToGetDataFrom]))
 				{
+					_couldSeeCursorLastFrame[playerToSyncTo, playerToGetDataFrom] = false;
 					continue;
 				}
 
@@ -138,7 +143,12 @@ public sealed class CursorTrackingSystem : ModSystem
 				}
 
 				// Don't sync info from players that this one can't see.
-				if (!CanPlayer1SeePlayer2Cursor(playerToSyncTo, playerToGetDataFrom))
+				// However, *do* sync if the player could be seen last frame.
+				// This updates cursor positions if one player teleports away.
+				bool canSeeThisFrame = CanPlayer1SeePlayer2Cursor(playerToSyncTo, playerToGetDataFrom);
+				bool couldSeeLastFrame = _couldSeeCursorLastFrame[playerToSyncTo, playerToGetDataFrom];
+				_couldSeeCursorLastFrame[playerToSyncTo, playerToGetDataFrom] = canSeeThisFrame;
+				if (!canSeeThisFrame && !couldSeeLastFrame)
 				{
 					continue;
 				}
@@ -166,7 +176,7 @@ public sealed class CursorTrackingSystem : ModSystem
 		}
 	}
 
-	private static bool CanPlayer1SeePlayer2Cursor(int player1, int player2, int padding = 100)
+	private static bool CanPlayer1SeePlayer2Cursor(int player1, int player2, int padding = CursorPadding)
 	{
 		if (stableDataByPlayer[player1] == default || stableDataByPlayer[player2] == default)
 		{
